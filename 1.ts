@@ -11,12 +11,12 @@ const lines = input
   .map(x => x.split("   "));
 const leftList = lines.map(line => parseInt(line[0]));
 const rightList = lines.map(line => parseInt(line[1]));
-
-leftList.sort((a, b) => a - b);
-rightList.sort((a, b) => a - b);
+const sorter = (a: number, b: number) => a - b;
+leftList.sort(sorter);
+rightList.sort(sorter);
 const sum = leftList
   .map((left, index) => Math.abs(left - rightList[index]))
-  .reduce(reduceSum, 0);
+  .reduce(reduceSum);
 
 console.log(sum);
 
@@ -24,11 +24,11 @@ console.log(sum);
 /**
  * Part 2
  */
-const rightIndex = rightList.reduce((acc, x) => {
-  acc[x] = (acc[x] ?? 0) + 1;
-  return acc;
-}, {} as Record<number, number>);
+const rightIndex = rightList.reduce(
+  (acc, x) => ({ ...acc, [x]: (acc[x] ?? 0) + 1 }),
+  {} as Record<number, number>
+);
 const sum2 = leftList
-  .map((left, index) => left * (rightIndex[left] ?? 0))
-  .reduce(reduceSum, 0);
+  .map(left => left * (rightIndex[left] ?? 0))
+  .reduce(reduceSum);
 console.log(sum2);
