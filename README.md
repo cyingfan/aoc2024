@@ -1,8 +1,8 @@
 # Advent of Code 2024
-In (bun)[https://bun.sh/].
+In [bun](https://bun.sh/).
 
 ## Preparation
-Grab the session value from cookie after logged into adventofcode.com. Put the value (without `session=`) into .env (see (sample)[https://github.com/TheR1D/shell_gpt/blob/main/sample.env]).
+Grab the session value from cookie after logged into adventofcode.com. Put the value (without `session=`) into .env (see [sample .env file](https://github.com/TheR1D/shell_gpt/blob/main/sample.env)).
 
 To run
 
