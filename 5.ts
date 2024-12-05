@@ -47,5 +47,41 @@ const invalidUpdates = updates
   .map(u => getUpdateRules(u))
   .map(r => [r, [...new Set(r.flat(2))]] as [Rule[], number[]])
   .map(([rules, update]) => fixUpdates(rules, update));
-
 console.log(invalidUpdates.map(u => u[Math.floor(u.length / 2)]).reduce(reduceSum));
+
+// Part 2 insert-sort
+type Node = {
+  value: number;
+  left: Node[];
+  right: Node[];
+};
+const findNode = (value: number, nodes: Node[]) => nodes.find(n => n.value === value);
+const rulesToNodes = (rules: Rule[]) => rules.reduce((nodes, [a, b]) => {
+  const nodeA = findNode(a, nodes) || { value: a, left: [], right: [] };
+  const nodeB = findNode(b, nodes) || { value: b, left: [], right: [] };
+  nodeA.right.push(nodeB);
+  nodeB.left.push(nodeA);
+  return [...nodes.filter(n => n.value !== a && n.value !== b), nodeA, nodeB];
+}, [] as Node[]);
+
+const nodesToUpdate = (nodes: Node[], update: number[]) => {
+  if (nodes.length === 0) {
+    return update;
+  }
+  const leftNodeIndex = nodes.findIndex(n => n.left.length === 0);
+  const leftNode = nodes[leftNodeIndex];
+  update.push(leftNode.value);
+  leftNode.right.forEach(n => {
+    n.left.splice(n.left.findIndex(l => l.value === leftNode.value), 1);
+  });
+  nodes.splice(leftNodeIndex, 1);
+  return nodesToUpdate(nodes, update);
+};
+
+const invalidUpdates2 = updates
+  .filter(u => u.some((p, i) => findRules(p, u).some(r => !validateRule(p, i, r, u))))
+  .map(getUpdateRules)
+  .map(rulesToNodes)
+  .map(nodes => nodesToUpdate(nodes, []));
+console.log(invalidUpdates2.map(u => u[Math.floor(u.length / 2)]).reduce(reduceSum));
+
