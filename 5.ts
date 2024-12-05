@@ -49,7 +49,7 @@ const invalidUpdates = updates
   .map(([rules, update]) => fixUpdates(rules, update));
 console.log(invalidUpdates.map(u => u[Math.floor(u.length / 2)]).reduce(reduceSum));
 
-// Part 2 insert-sort
+// Part 2 Linked-list sort
 type Node = {
   value: number;
   left: Node[];
