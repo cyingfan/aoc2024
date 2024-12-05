@@ -10,4 +10,12 @@ To run
 bun run <day>.ts
 ```
 
+To run using example input
+```
+bun run <day>.ts --test [--match <match-number>]
+```
+- Highly experimental, may break in some days.
+- If `--match <match-number>` is not provided, the first match is used.
+- `<match-number>` is a zero-based index. So first match is 0.
+
 This project was created using `bun init` in bun v1.1.38. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
