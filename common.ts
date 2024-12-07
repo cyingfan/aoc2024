@@ -9,7 +9,7 @@ export const getInput = async (day: number) => {
     return match ? match[1].trim() : "";
 
   } else {
-    return await fetchAoc(`https://adventofcode.com/2024/day/${day}/input`);
+    return (await fetchAoc(`https://adventofcode.com/2024/day/${day}/input`)).trim();
   }
 };
 
