@@ -4,8 +4,13 @@ const day = 7;
 const input = await getInput(day);
 
 // Part 1
-const operators = ["+", "*"];
-const expressions = <[number, number[]][]>input
+type Operators = Record<string, (a: number, b: number) => number>;
+const operators: Operators = {
+  "+": (a, b) => a + b,
+  "*": (a, b) => a * b
+};
+type Expressions = [number, number[]][];
+const expressions = <Expressions>input
   .split("\n")
   .map(l => l.split(": "))
   .map(
@@ -14,7 +19,13 @@ const expressions = <[number, number[]][]>input
       p[1].split(" ").map(n => parseInt(n))
     ]
   );
+
+const permutations: Record<string, string[][]> = {};
 const getOperatorPermutations = (n: number, operators: string[]) => {
+  const key = `${n}-${operators.join("")}`;
+  if (permutations[key]) {
+    return permutations[key];
+  }
   const result = <string[][]>[];
   const recurse = (acc: string[], depth: number) => {
     if (depth === n) {
@@ -26,27 +37,25 @@ const getOperatorPermutations = (n: number, operators: string[]) => {
     });
   };
   recurse([], 0);
+  permutations[key] = result;
   return result;
 };
+const getResults = (expressions: Expressions, operators: Operators) =>
+  expressions.filter(([expected, numbers]: [number, number[]]) =>
+    getOperatorPermutations(numbers.length - 1, Object.keys(operators))
+      .some((ops: string[]) =>
+        expected === numbers.slice(1).reduce((acc, n, i) => operators[ops[i]](acc, n), numbers[0])
+      )
+  );
 
-const results = expressions.filter(([expected, numbers]: [number, number[]]) => {
-  const operatorPermutations = getOperatorPermutations(numbers.length - 1, operators);
-  return operatorPermutations.some((ops: string[]) => {
-    const calculated = numbers.reduce((acc, n, i) => eval(`${acc}${ops[i - 1] || ""}${n}`));
-    return calculated === expected;
-  });
-});
+
+const results = getResults(expressions, operators);
 console.log(results.map(r => r[0]).reduce(reduceSum, 0));
 
 
 // Part 2
-const newOperators = ["+", "*", ""];
-const results2 = expressions.filter(([expected, numbers]: [number, number[]]) => {
-  const operatorPermutations = getOperatorPermutations(numbers.length - 1, newOperators);
-  return operatorPermutations.some((ops: string[]) => {
-    const calculated = numbers.reduce((acc, n, i) => eval(`${acc}${ops[i - 1] || ""}${n}`));
-    return calculated === expected;
-  });
-});
+operators["}|"] = (a: number, b: number) => parseInt(a.toString() + b.toString());
+const results2 = getResults(expressions, operators);
 console.log(results2.map(r => r[0]).reduce(reduceSum, 0));
+
 
