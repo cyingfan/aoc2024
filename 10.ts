@@ -14,18 +14,19 @@ const findTrailHeads = (g: number[][]) => g.reduce(
   [] as Coord[]
 );
 
-const findNextMoves = (g: number[][], [r, c]: Coord, currentTrail: Coord[]): Coord[][] => {
+const findNextMoves = (g: number[][], currentTrail: Coord[]): Coord[][] => {
+  const [r, c] = currentTrail[currentTrail.length - 1];
   const current = g[r][c];
   const moves: Coord[] = [[r + 1, c], [r - 1, c], [r, c + 1], [r, c - 1]];
   const nextMoves = moves.filter(([r2, c2]) => g[r2]?.[c2] === current + 1);
   const nextTrails = nextMoves.map(([r2, c2]) => [...currentTrail, <Coord>[r2, c2]]);
   return [
     ...nextTrails.filter(t => t.length === 10),
-    ...nextTrails.filter(t => t.length < 10).map(t => findNextMoves(g, t[t.length - 1], t)).flat()
+    ...nextTrails.filter(t => t.length < 10).map(t => findNextMoves(g, t)).flat()
   ];
 }
 
-const findTrails = (g: number[][], start: Coord) => findNextMoves(g, start, [start]);
+const findTrails = (g: number[][], start: Coord) => findNextMoves(g, [start]);
 
 const findTrailHeadScores = (g: number[][], trailHead: Coord) => {
   const endCoods = findTrails(g, trailHead).map(t => t[t.length - 1].toString());
