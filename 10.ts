@@ -21,7 +21,7 @@ const findNextMoves = (g: number[][], [r, c]: Coord, currentTrail: Coord[]): Coo
   const nextTrails = nextMoves.map(([r2, c2]) => [...currentTrail, <Coord>[r2, c2]]);
   return [
     ...nextTrails.filter(t => t.length === 10),
-    ...nextTrails.filter(t => t.length < 10).map(t => findNextMoves(g, [t[t.length - 1][0], t[t.length - 1][1]], t)).flat()
+    ...nextTrails.filter(t => t.length < 10).map(t => findNextMoves(g, t[t.length - 1], t)).flat()
   ];
 }
 
