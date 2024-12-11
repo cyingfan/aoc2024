@@ -26,10 +26,9 @@ const findNextMoves = (g: number[][], currentTrail: Coord[]): Coord[][] => {
   ];
 }
 
-const findTrails = (g: number[][], start: Coord) => findNextMoves(g, [start]);
 
 const findTrailHeadScores = (g: number[][], trailHead: Coord) => {
-  const endCoods = findTrails(g, trailHead).map(t => t[t.length - 1].toString());
+  const endCoods = findNextMoves(g, [trailHead]).map(t => t[t.length - 1].toString());
   return [...new Set(endCoods)].length;
 }
 console.log(findTrailHeads(grid).map(th => findTrailHeadScores(grid, th)).reduce(reduceSum));
@@ -37,7 +36,7 @@ console.log(findTrailHeads(grid).map(th => findTrailHeadScores(grid, th)).reduce
 // Part 2
 console.log(
   findTrailHeads(grid)
-    .map(th => findTrails(grid, th).length)
+    .map(th => findNextMoves(grid, [th]).length)
     .reduce(reduceSum)
 );
 
