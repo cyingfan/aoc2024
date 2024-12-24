@@ -28,61 +28,69 @@ const compact = (fs: string[]) => {
 }
 
 const filesystem = expandFs(input);
+
 const result = compact([...filesystem]);
 console.log(
   result
-    .map((n, i) => (parseInt(n) || 0) * i)
+    .map((n, i) => (parseInt(n, 10) || 0) * i)
     .reduce(reduceSum)
 );
 
 
-// Part 2 - WIP - Failed actual input
-const findFileIdIndexes = (fs: string[], fileId: string) => [fs.lastIndexOf(fileId), fs.indexOf(fileId)];
-const findFirstFittingEmpyBlockIndex = (fs: string[], length: number, start = 0) => {
-  if (start >= fs.length) {
+// Part 2
+
+// fileId => [length, index]
+type FileMap = Record<number, [number, number]>;
+
+const expandFs2 = (input: string) => input
+  .split("")
+  .map(n => parseInt(n))
+  .reduce(
+    (acc, n, i) => {
+      if ((i % 2) === 0) {
+        acc[1][i / 2] = [n, acc[0]];
+      }
+      acc[0] += n;
+      return acc;
+    },
+    <[number, FileMap]>[0, {}]);
+
+const [, filesystem2] = expandFs2(input);
+
+const fileIds = Object.keys(filesystem2).map(k => parseInt(k, 10));
+const lastId = Math.max(...fileIds);
+
+const findFirstFittingBlock = (fs: FileMap, fIds: number[], length: number) => {
+  if (fIds.length <= 1) {
     return -1;
   }
-  const slice = fs.slice(start);
-  const findBlockLength = (index: number, count: number) => {
-    if (slice[index] !== ".") {
-      return count - 1;
-    };
-    return findBlockLength(index + 1, count + 1);
+  const freeBlockLength = fs[fIds[1]][1] - fs[fIds[0]][1] - fs[fIds[0]][0];
+  if (freeBlockLength >= length) {
+    return fs[fIds[0]][1] + fs[fIds[0]][0];
   }
-  const index = slice.indexOf(".");
-  if (index === -1) {
-    return -1;
-  }
-  const blockLength = findBlockLength(index, 1);
-  if (blockLength >= length) {
-    return index + start;
-  }
-  return findFirstFittingEmpyBlockIndex(fs, length, start + index + length);
+  return findFirstFittingBlock(fs, fIds.slice(1), length);
 };
 
-const defrag = (fs: string[], fileId: string) => {
-  if (parseInt(fileId) <= 0) {
-    return fs;
+const defrag = (fs: FileMap, fIds: number[], lastId: number) => {
+  if (lastId <= 1) {
+    return fIds;
   }
-  const [lastFileIdIndex, firstFileIdIndex] = findFileIdIndexes(fs, fileId);
-  const fileBlockLength = lastFileIdIndex - firstFileIdIndex + 1;
-  const firstFittingEmpyBlockIndex = findFirstFittingEmpyBlockIndex(fs, fileBlockLength);
-
-  if (firstFittingEmpyBlockIndex !== -1 && firstFittingEmpyBlockIndex < firstFileIdIndex) {
-    console.log(fileId, fileBlockLength, firstFittingEmpyBlockIndex);
-    fs.splice(firstFittingEmpyBlockIndex, fileBlockLength, ...Array(fileBlockLength).fill(fileId));
-    fs.splice(firstFileIdIndex, fileBlockLength, ...Array(fileBlockLength).fill("."));
+  const firstFittingBlockIndex = findFirstFittingBlock(fs, fIds, fs[lastId][0]);
+  if (firstFittingBlockIndex !== -1 && firstFittingBlockIndex < fs[lastId][1]) {
+    fs[lastId][1] = firstFittingBlockIndex;
   }
-  return defrag(fs, (parseInt(fileId) - 1).toString());
+  fIds.sort((a, b) => fs[a][1] - fs[b][1]);
+  return defrag(fs, fIds, lastId - 1);
 };
 
-const lastFileIdLastIndex = filesystem.findLastIndex(f => f.match(/\d/));
-const lastFileId = filesystem[lastFileIdLastIndex];
-const result2 = defrag([...filesystem], lastFileId);
+const fIds = defrag(filesystem2, fileIds, lastId);
 console.log(
-  result2
-    .map((n, i) => (parseInt(n) || 0) * i)
+  fIds
+    .map(n =>
+      Array(filesystem2[n][0])
+        .fill(n)
+        .map((n, i) => n * (i + filesystem2[n][1]))
+        .reduce(reduceSum)
+    )
     .reduce(reduceSum)
-);
-
-
+)
