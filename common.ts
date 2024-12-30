@@ -22,7 +22,7 @@ const fetchAoc = async (url: string) => {
   return await response.text();
 }
 
-const getArgs = () => {
+export const getArgs = () => {
   const { values } = parseArgs({
     args: Bun.argv,
     options: {
